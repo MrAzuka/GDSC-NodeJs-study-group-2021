@@ -17,4 +17,5 @@ module.exports = (err, req, res, next) => {
   }
   logger.error(err.message);
   res.status(err.statusCode).json(data);
+  next()
 };

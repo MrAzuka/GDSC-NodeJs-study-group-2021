@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const constants = require('../utils/constants');
+const bcrypt = require('bcryptjs')
 
 const { USER } = constants.mongooseModels;
 
@@ -49,6 +50,7 @@ userSchema.pre('save', async function (next) {
   }
 
   //if password is modified then change hash the password and save it.
+  this.password = await bcrypt.hash(this.password,10)
   //also remove the passwordConfirm.
 
   next();
