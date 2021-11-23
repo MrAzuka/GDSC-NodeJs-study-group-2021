@@ -1,4 +1,5 @@
 const User = require('.../models/User.js')
+
 const signup = async (req, res, next) => {
   /**
    * takes the following fields in the body
