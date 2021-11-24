@@ -1,5 +1,5 @@
-const User = require('.../models/User.js')
-
+const User = require('../../models/User')
+const errorHandler = require('../../error/errorHandler')
 const signup = async (req, res, next) => {
   /**
    * takes the following fields in the body
@@ -12,25 +12,34 @@ const signup = async (req, res, next) => {
    *
    * and saves it to the MongoDB database
    *
-   */
+//    */
+ try {
   const {firstName, lastName, email, password, passwordConfirm} = req.body
-  const user = User.findOne({email})
-  if(user.email === email){
-    res.status(400).json({
+  const oldUser = await User.findOne({ email })
+  
+  if(oldUser){
+   return res.send({
       message: "Email already in use"
     })
   }
   
   const newUser = new User({
-    firstName, lastName, email,password, passwordConfirm
+    firstName, lastName, email, password, passwordConfirm
   })
 
-  await newUser.save()
+  const createdUser = await newUser.save()
 
-  res.status(201).json({
-    message: 'Stored user details successfully',
-  });
-  next()
+  if (!createdUser) {
+    return res.status(401).json("User not created")
+  } else {
+    return res.status(201).json({
+      message: 'Stored user successfully',
+    }) 
+  }
+  
+ } catch (err) {
+  return errorHandler(err, req, res, next)
+ }
 };
 
 module.exports = signup;
