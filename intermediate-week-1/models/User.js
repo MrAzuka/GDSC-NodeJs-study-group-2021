@@ -27,11 +27,11 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, 'Please provide a password'],
       minlength: 8,
-      select: false,
+      select: true,
     },
     passwordConfirm: {
       type: String,
-      select: false,
+      select: true,
       validate: {
         validator: function (el) {
           return el === this.password;

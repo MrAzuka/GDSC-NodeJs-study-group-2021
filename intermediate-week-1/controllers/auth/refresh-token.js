@@ -1,10 +1,11 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
-const {JWT_REFRESH_SECRET} = process.env
+const {JWT_REFRESH_SECRET, JWT_EXPIRES} = process.env
 const User = require('../../models/User')
+
 // const errorHandler = require('../../error/errorHandler')
 
-const refreshAccessToken = async (req, res) => {
+const refreshAccessToken = async (req) => {
    const {email} = req.body
    const foundUser = await User.findOne({email})
   /**
@@ -20,8 +21,11 @@ const refreshAccessToken = async (req, res) => {
         refreshToken: *********
      * }
      */
-    const token = jwt.sign({ email: foundUser.email}, JWT_REFRESH_SECRET)
-    res.status(200)
+    const token = jwt.sign({
+      email: foundUser.email, 
+      firstName: foundUser.firstName,  
+      lastName: foundUser.lastName, 
+      _id: foundUser._id}, JWT_REFRESH_SECRET, {expiresIn: JWT_EXPIRES})
    return token
 };
 
