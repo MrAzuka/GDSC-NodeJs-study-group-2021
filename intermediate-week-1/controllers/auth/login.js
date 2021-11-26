@@ -1,9 +1,9 @@
 const User = require('../../models/User')
-const jwt = require('jsonwebtoken')
+// const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 require('dotenv').config()
-// const refreshAccessToken = require('./refresh-token')
-const {JWT_SECRET, JWT_EXPIRES, JWT_REFRESH_SECRET, JWT_REFRESH_EXPIRES} = process.env
+const {newAccessToken, refreshAccessToken1} = require('../../utils/accessToken')
+// const {JWT_SECRET, JWT_EXPIRES, JWT_REFRESH_SECRET, JWT_REFRESH_EXPIRES} = process.env
 
 const login = async (req, res) => {
   /*send a response with the following format if the login is successful
@@ -24,19 +24,8 @@ const login = async (req, res) => {
       return res.status(400).json({message: "Incorrect password"})
     }
 
-    const accessToken = jwt.sign({ 
-      email: foundUser.email, 
-      firstName: foundUser.firstName,  
-      lastName: foundUser.lastName, 
-      _id: foundUser._id}, 
-      JWT_SECRET, 
-      {expiresIn: JWT_EXPIRES})
-
-    const refreshToken = jwt.sign({
-      email: foundUser.email, 
-      firstName: foundUser.firstName,  
-      lastName: foundUser.lastName, 
-      _id: foundUser._id}, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES})
+    const accessToken = newAccessToken(foundUser)
+    const refreshToken = refreshAccessToken1(foundUser)
 
     return res.status(200).json({
       accessToken: accessToken,

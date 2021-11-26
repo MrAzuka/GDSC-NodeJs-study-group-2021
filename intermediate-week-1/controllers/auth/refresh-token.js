@@ -1,13 +1,11 @@
 require('dotenv').config()
-const jwt = require('jsonwebtoken')
-const {JWT_REFRESH_SECRET, JWT_EXPIRES} = process.env
+// const jwt = require('jsonwebtoken')
 const User = require('../../models/User')
+const bcrypt = require('bcryptjs')
+const errorHandler = require('../../error/errorHandler')
+const {newAccessToken, refreshAccessToken1} = require('../../utils/accessToken')
 
-// const errorHandler = require('../../error/errorHandler')
-
-const refreshAccessToken = async (req) => {
-   const {email} = req.body
-   const foundUser = await User.findOne({email})
+const refreshAccessToken = async (req,res) => {
   /**
      * Takes a parameter 
      * refreshToken 
@@ -21,12 +19,29 @@ const refreshAccessToken = async (req) => {
         refreshToken: *********
      * }
      */
-    const token = jwt.sign({
-      email: foundUser.email, 
-      firstName: foundUser.firstName,  
-      lastName: foundUser.lastName, 
-      _id: foundUser._id}, JWT_REFRESH_SECRET, {expiresIn: JWT_EXPIRES})
-   return token
+        try {
+         const {email, password} = req.body
+         const foundUser = await User.findOne({email})
+         if(!foundUser) {
+          return res.status(401).json({message: "User not found"})
+         }
+         
+         const isMatch = await bcrypt.compare(password, foundUser.password)
+         if(!isMatch) {
+           return res.status(400).json({message: "Incorrect password"})
+         }
+     
+         const accessToken = newAccessToken(foundUser)
+         const refreshToken = refreshAccessToken1(foundUser)
+     
+         return res.status(200).json({
+           accessToken: accessToken,
+           refreshToken: refreshToken
+       })
+        } catch (err) {
+          errorHandler(err, req,res)
+        }
+       
 };
 
 module.exports = refreshAccessToken;
